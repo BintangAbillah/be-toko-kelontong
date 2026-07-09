@@ -1,0 +1,74 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: toko-kelontong-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-toko_kelontong}
+      DB_USERNAME: ${DOCKER_DB_USERNAME:-toko}
+      DB_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      SESSION_DRIVER: database
+    volumes:
+      - storage-data:/var/www/html/storage
+      - cache-data:/var/www/html/bootstrap/cache
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - toko-kelontong
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: toko-kelontong-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html:ro
+      - storage-data:/var/www/html/storage:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - toko-kelontong
+
+  mysql:
+    image: mysql:8.4
+    container_name: toko-kelontong-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-toko_kelontong}
+      MYSQL_USER: ${DOCKER_DB_USERNAME:-toko}
+      MYSQL_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD:-root}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko-kelontong
+
+networks:
+  toko-kelontong:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  storage-data:
+  cache-data:

@@ -1,0 +1,656 @@
+{
+  "info": {
+    "name": "Toko Kelontong API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "item_id",
+      "value": "1"
+    },
+    {
+      "key": "cash_transaction_id",
+      "value": "1"
+    },
+    {
+      "key": "stock_movement_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo User\",\n  \"email\": \"demo@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('token', json.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "List Items",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/items?per_page=15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "items"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"BRG-001\",\n  \"name\": \"Gula Pasir 1kg\",\n  \"description\": \"Gula pasir kemasan 1kg\",\n  \"unit\": \"pcs\",\n  \"purchase_price\": 12000,\n  \"selling_price\": 14000,\n  \"minimum_stock\": 5,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Show Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "items",
+                "{{item_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sku\": \"BRG-001\",\n  \"name\": \"Gula Pasir 1kg\",\n  \"description\": \"Gula pasir kemasan 1kg\",\n  \"unit\": \"pcs\",\n  \"purchase_price\": 12500,\n  \"selling_price\": 14500,\n  \"minimum_stock\": 5,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "items",
+                "{{item_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/items/{{item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "items",
+                "{{item_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cash Transactions",
+      "item": [
+        {
+          "name": "List Cash Transactions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cash-transactions?per_page=15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cash-transactions"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Cash Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"cash_in\",\n  \"amount\": 50000,\n  \"description\": \"Modal kas harian\",\n  \"transaction_date\": \"2026-05-29\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cash-transactions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cash-transactions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Show Cash Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cash-transactions/{{cash_transaction_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cash-transactions",
+                "{{cash_transaction_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Cash Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"cash_out\",\n  \"amount\": 20000,\n  \"description\": \"Belanja plastik\",\n  \"transaction_date\": \"2026-05-29\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/cash-transactions/{{cash_transaction_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cash-transactions",
+                "{{cash_transaction_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Cash Transaction",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/cash-transactions/{{cash_transaction_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "cash-transactions",
+                "{{cash_transaction_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock Movements",
+      "item": [
+        {
+          "name": "List Stock Movements",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/stock-movements?per_page=15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stock-movements"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "15"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Stock Movement",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_id\": {{item_id}},\n  \"type\": \"in\",\n  \"quantity\": 10,\n  \"notes\": \"Stock awal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/stock-movements",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stock-movements"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Show Stock Movement",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/stock-movements/{{stock_movement_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "stock-movements",
+                "{{stock_movement_id}}"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
