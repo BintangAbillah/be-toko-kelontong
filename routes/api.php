@@ -17,7 +17,20 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware('jwt')->group(function (): void {
-    Route::apiResource('items', ItemController::class);
-    Route::apiResource('cash-transactions', CashTransactionController::class);
-    Route::apiResource('stock-movements', StockMovementController::class)->only(['index', 'store', 'show']);
+    Route::get('items', [ItemController::class, 'index']);
+    Route::get('items/{item}', [ItemController::class, 'show']);
+    Route::post('items/{item}/purchase', [ItemController::class, 'purchase'])->middleware('role:shop_owner,customer');
+
+    Route::middleware('role:shop_owner')->group(function (): void {
+        Route::get('users', [AuthController::class, 'indexUsers']);
+        Route::post('items', [ItemController::class, 'store']);
+        Route::match(['put', 'patch'], 'items/{item}', [ItemController::class, 'update']);
+        Route::delete('items/{item}', [ItemController::class, 'destroy']);
+        Route::patch('users/{user}/role', [AuthController::class, 'updateRole']);
+    });
+
+    Route::middleware('role:shop_owner,shop_keeper')->group(function (): void {
+        Route::apiResource('cash-transactions', CashTransactionController::class);
+        Route::apiResource('stock-movements', StockMovementController::class)->only(['index', 'store', 'show']);
+    });
 });
