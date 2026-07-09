@@ -13,7 +13,6 @@ class CashTransactionController extends Controller
     public function index(Request $request): JsonResponse
     {
         $transactions = CashTransaction::query()
-            ->forUser($request->user())
             ->when($request->query('date'), fn ($query, string $date) => $query->whereDate('transaction_date', $date))
             ->when($request->query('type'), fn ($query, string $type) => $query->where('type', $type))
             ->latest('transaction_date')
@@ -35,14 +34,11 @@ class CashTransactionController extends Controller
 
     public function show(Request $request, CashTransaction $cashTransaction): JsonResponse
     {
-        $this->authorizeUserTransaction($request, $cashTransaction);
-
         return response()->json(['data' => $cashTransaction]);
     }
 
     public function update(Request $request, CashTransaction $cashTransaction): JsonResponse
     {
-        $this->authorizeUserTransaction($request, $cashTransaction);
         $cashTransaction->update($this->validatedData($request));
 
         return response()->json(['data' => $cashTransaction->refresh()]);
@@ -50,7 +46,6 @@ class CashTransactionController extends Controller
 
     public function destroy(Request $request, CashTransaction $cashTransaction): JsonResponse
     {
-        $this->authorizeUserTransaction($request, $cashTransaction);
         $cashTransaction->delete();
 
         return response()->json(status: 204);
@@ -67,10 +62,5 @@ class CashTransactionController extends Controller
             'description' => ['nullable', 'string', 'max:255'],
             'transaction_date' => ['required', 'date'],
         ]);
-    }
-
-    private function authorizeUserTransaction(Request $request, CashTransaction $transaction): void
-    {
-        abort_unless($transaction->user_id === $request->user()->getKey(), 404);
     }
 }

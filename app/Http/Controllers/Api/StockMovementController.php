@@ -17,7 +17,6 @@ class StockMovementController extends Controller
     {
         $movements = StockMovement::query()
             ->with('item')
-            ->forUser($request->user())
             ->when($request->query('item_id'), fn ($query, string $itemId) => $query->where('item_id', $itemId))
             ->when($request->query('type'), fn ($query, string $type) => $query->where('type', $type))
             ->latest('occurred_at')
@@ -38,7 +37,6 @@ class StockMovementController extends Controller
 
         $movement = DB::transaction(function () use ($request, $data): StockMovement {
             $item = Item::query()
-                ->forUser($request->user())
                 ->lockForUpdate()
                 ->findOrFail($data['item_id']);
 
@@ -75,8 +73,6 @@ class StockMovementController extends Controller
 
     public function show(Request $request, StockMovement $stockMovement): JsonResponse
     {
-        abort_unless($stockMovement->user_id === $request->user()->getKey(), 404);
-
         return response()->json(['data' => $stockMovement->load('item')]);
     }
 }
